@@ -12,6 +12,17 @@ const Flow = () => {
     const [userMetadata, setUserMetadata] = useState({});
     const [message, setMessage] = useState("");
 
+    useEffect(() => {
+        magic.user.isLoggedIn().then(async (magicIsLoggedIn) => {
+            setIsLoggedIn(magicIsLoggedIn);
+            if (magicIsLoggedIn) {
+                const { publicAddress } = await magic.user.getMetadata();
+                setPublicAddress(publicAddress);
+                setUserMetadata(await magic.user.getMetadata());
+            }
+        });
+    }, [isLoggedIn]);
+
     const login = async () => {
         await magic.auth.loginWithMagicLink({ email });
         setIsLoggedIn(true);
@@ -89,21 +100,11 @@ const Flow = () => {
         }
     };
 
-    useEffect(() => {
-        magic.user.isLoggedIn().then(async (magicIsLoggedIn) => {
-            setIsLoggedIn(magicIsLoggedIn);
-            if (magicIsLoggedIn) {
-                const { publicAddress } = await magic.user.getMetadata();
-                setPublicAddress(publicAddress);
-                setUserMetadata(await magic.user.getMetadata());
-            }
-        });
-    }, [isLoggedIn]);
-
     return (
-        <>
-            {!isLoggedIn && (
-                <>
+        <div className="App">
+            {!isLoggedIn ? (
+                <div className="container">
+                    <h1>Please sign up or login</h1>
                     <input
                         type="email"
                         name="email"
@@ -113,22 +114,39 @@ const Flow = () => {
                             setEmail(event.target.value);
                         }}
                     />
-                    <button onClick={() => login()}>Login</button>
-                </>
+                    <button onClick={login}>Send</button>
+                </div>
+            ) : (
+                <div>
+                    <div>
+                        <div className="container">
+                            <h1>Current user: {userMetadata.email}</h1>
+                            <button onClick={logout}>Logout</button>
+                        </div>
+                    </div>
+                    <div className="container">
+                        <h1>Flow address</h1>
+                        <div className="info">{publicAddress}</div>
+                    </div>
+                    <div className="container">
+                        <h1>Verify Transaction</h1>
+                        {verifying ? (
+                            <div className="sending-status">
+                                Verifying Transaction
+                            </div>
+                        ) : (
+                            ""
+                        )}
+                        <div className="info">
+                            <div>{message}</div>
+                        </div>
+                        <button id="btn-deploy" onClick={verify}>
+                            Verify
+                        </button>
+                    </div>
+                </div>
             )}
-            {isLoggedIn && (
-                <>
-                    <button onClick={() => verify()}>Verify</button>
-                    <h2>
-                        Address: {publicAddress ? publicAddress : "Loading..."}
-                    </h2>
-                    <h2>Current user: {userMetadata.email}</h2>
-                    <h2>Message:</h2>
-                    <p>{verifying ? "Verifying..." : message}</p>
-                    <button onClick={() => logout()}>Logout</button>
-                </>
-            )}
-        </>
+        </div>
     );
 };
 
