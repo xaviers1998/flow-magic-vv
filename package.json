@@ -9,6 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@magic-ext/flow": "^4.0.0",
+    "@onflow/fcl": "^1.2.0",
+    "@onflow/transport-grpc": "^1.1.1",
+    "magic-sdk": "^9.0.0",
     "next": "12.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0"
